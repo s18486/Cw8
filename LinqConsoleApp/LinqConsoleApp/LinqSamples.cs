@@ -343,8 +343,9 @@ namespace LinqConsoleApp
                       where emp.Job == "Backend programmer"
                       select emp).Count()>0;
 
-            var res2 = Emps.Where(e => e.Job == "Backend programmer").Count() > 0;
-            /*var res2 = Emps.Contains(new Emp { Job = "Backend programmer" }, EqualityComparerFactory.Create<Emp>(
+            var res2 = Emps.Any(e => e.Job == "Backend programmer");
+            /*var res2 = Emps.Where(e => e.Job == "Backend programmer").Count() > 0;
+            var res2 = Emps.Contains(new Emp { Job = "Backend programmer" }, EqualityComparerFactory.Create<Emp>(
                 a => a.Job.GetHashCode(),
                 (a, b) => a.Job == b.Job));*/
             Console.WriteLine(res);
@@ -374,21 +375,29 @@ namespace LinqConsoleApp
         /// SELECT "Brak wartości", null, null;
         /// </summary>
         public void Przyklad10Button_Click()
-        {
-            
+        { 
+            var res = Emps.Select(e => new { e.Ename,e.Job, e.HireDate })
+                .Union(Emps.Select(e => new {Ename = "Brak wartosci", Job = (string)null, HireDate = (DateTime?)null }));
+
+            foreach (var e in res)
+                Console.WriteLine(e);
         }
 
         //Znajdź pracownika z najwyższą pensją wykorzystując metodę Aggregate()
         public void Przyklad11()
         {
-
+            var res = Emps.Aggregate((max, next) => max.Salary <= next.Salary ? next : max);
+            Console.WriteLine(res);
         }
 
         //Z pomocą języka LINQ i metody SelectMany wykonaj złączenie
         //typu CROSS JOIN
         public void Przyklad12()
         {
+            var res = Depts.SelectMany(x => Emps, (dept, emp) => new { Ename = emp.Ename, Dname = dept.Dname });
 
+            foreach (var e in res)
+                Console.WriteLine(e);
         }
     }
 }
